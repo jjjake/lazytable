@@ -20,7 +20,6 @@
 from __future__ import print_function, unicode_literals
 import pprint
 import sqlite3
-import types
 import sys
 import time
 
@@ -149,7 +148,7 @@ class LazyTable():
 
         """
     
-        if self.columns != set(map(str.lower, record.keys())):
+        if self.columns != set(map(lambda x: x.lower(), record.keys())):
             self.expand(record)
         c = self.connection.cursor()
         cols = []
@@ -278,7 +277,7 @@ class LazyTable():
         [{'foo': 'bar', 'rowid': 1}]
         """
 
-        if self.columns != set(map(str.lower, record.keys())):
+        if self.columns != set(map(lambda x: x.lower(), record.keys())):
             self.expand(record)
         c = self.connection.cursor()
         cols = []
@@ -304,9 +303,9 @@ class LazyTable():
 
         >>> t = open(':memory:', 't')
         >>> t._mk_ands({'a':1, 'b':2})
-        ('"a" = ?  AND "b" = ? ', [1, 2])
+        (u'"a" = ?  AND "b" = ? ', [1, 2])
         >>> t._mk_ands({'a':None, 'b':2})
-        ('"a" = NULL  AND "b" = ? ', [2])
+        (u'"a" = NULL  AND "b" = ? ', [2])
         """
 
         clauses = []
@@ -338,13 +337,13 @@ class LazyTable():
                 # skip if other case'd version already exists
                 continue
             new_type = type(record[new_column])
-            if new_type == types.NoneType:
+            if isinstance(new_type, type(None)):
                 #dont add columns for None valued fields
                 continue
             sql_type = 'blob'
-            if new_type == types.IntType:
+            if isinstance(new_type, type(int)):
                 sql_type = 'integer'
-            elif new_type == types.FloatType:
+            elif isinstance(new_type, type(float)):
                 sql_type = 'real'
             c.execute("ALTER TABLE %s ADD COLUMN %s %s default NULL" %  (escape_identifier(self.table), escape_identifier(new_column), sql_type))
             self.connection.commit()
