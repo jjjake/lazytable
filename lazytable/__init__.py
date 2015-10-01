@@ -17,12 +17,11 @@
 # along with lazytable. If not, see <http://www.gnu.org/licenses/>.
 #
 # The lazytable source is hosted at https://github.com/samuelinsf/lazytable
-
+from __future__ import print_function, unicode_literals
 import pprint
 import sqlite3
 import types
 import sys
-import string
 import time
 
 def open(sqlite_file, table, index_all_columns=False, fast_and_unsafe=False):
@@ -70,8 +69,8 @@ class LazyTable():
         if fast_and_unsafe:
             self.connection.execute('PRAGMA journal_mode = off')
             self.connection.execute('PRAGMA synchronous = 0')
-            #print list(self.connection.execute('PRAGMA journal_mode'))
-            #print list(self.connection.execute('PRAGMA synchronous'))
+            #print(list(self.connection.execute('PRAGMA journal_mode')))
+            #print(list(self.connection.execute('PRAGMA synchronous')))
 
     def insert(self, record):
         """Insert a record (dict) into the table, adding columns as needed
@@ -150,7 +149,7 @@ class LazyTable():
 
         """
     
-        if self.columns != set(map(string.lower, record.keys())):
+        if self.columns != set(map(str.lower, record.keys())):
             self.expand(record)
         c = self.connection.cursor()
         cols = []
@@ -279,7 +278,7 @@ class LazyTable():
         [{'foo': 'bar', 'rowid': 1}]
         """
 
-        if self.columns != set(map(string.lower, record.keys())):
+        if self.columns != set(map(str.lower, record.keys())):
             self.expand(record)
         c = self.connection.cursor()
         cols = []
@@ -293,7 +292,7 @@ class LazyTable():
             cols_q.append('?')
             vals.append(record[k])
         sql = ("INSERT INTO %s " % (escape_identifier(self.table))) +  '(' + ','.join(cols) + ') VALUES (' + ','.join(cols_q) + ')'
-        #print sql
+        #print(sql)
         r = c.execute(sql, vals)
         if commit:
             self.connection.commit()
@@ -438,14 +437,14 @@ class LazyTable():
         c = self.connection.cursor()
         start = time.time()
         if verbose:
-            print sql
+            print(sql)
         if values == None:
             r = c.execute(sql)
         else:
             r = c.execute(sql, values)
         done = time.time()
         if verbose:
-            print 'query took:', (done - start)
+            print('query took: {0}'.format((done - start)))
         return r
 
     def close(self):
